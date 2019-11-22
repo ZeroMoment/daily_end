@@ -29,9 +29,9 @@ class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
 
   void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
+//    setState(() {
+//      _counter++;
+//    });
   }
 
   @override
@@ -40,19 +40,10 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: Text(widget.title),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.display1,
-            ),
-          ],
-        ),
+      body: ListView.separated(
+          itemCount: 10,
+          separatorBuilder: (BuildContext context, int index) => index %2 == 0? Divider(color: Colors.green) : Divider(color: Colors.red,),
+          itemBuilder: (BuildContext context, int index)=>ListTile(title: Text("title $index"), subtitle: Text("body $index"))
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _incrementCounter,
@@ -61,4 +52,19 @@ class _MyHomePageState extends State<MyHomePage> {
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
+
+/**
+ * Column(
+    mainAxisAlignment: MainAxisAlignment.center,
+    children: <Widget>[
+    Text(
+    'You have pushed the button this many times:',
+    ),
+    Text(
+    '$_counter',
+    style: Theme.of(context).textTheme.display1,
+    ),
+    ],
+    )
+ */
 }
