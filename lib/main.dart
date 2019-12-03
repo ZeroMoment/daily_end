@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:sqflite/sqflite.dart';
+import 'package:path/path.dart';
 
 void main() => runApp(MyApp());
 
@@ -8,7 +10,6 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Daily End',
       theme: ThemeData(
-
         primarySwatch: Colors.blue,
       ),
       home: MyHomePage(title: 'Daily Home'),
@@ -28,7 +29,15 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
 
-  void _incrementCounter() {
+  Future _incrementCounter() async {
+    final Future<Database> database = openDatabase(
+        join(await getDatabasesPath(), 'daily_database.db'),
+        onCreate: (db, version)=>db.execute("CREATE TABLE dailysettle(id INTEGER PRIMARY KEY, content TEXT, contentSub TEXT, endState INTEGER)"),
+    onUpgrade: (db, oldVersion, newVersion) {
+
+    },
+    version: 1,
+    );
 //    setState(() {
 //      _counter++;
 //    });
@@ -42,9 +51,13 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: ListView.separated(
           itemCount: 10,
-          separatorBuilder: (BuildContext context, int index) => index %2 == 0? Divider(color: Colors.green) : Divider(color: Colors.red,),
-          itemBuilder: (BuildContext context, int index)=>ListTile(title: Text("title $index"), subtitle: Text("body $index"))
-      ),
+          separatorBuilder: (BuildContext context, int index) => index % 2 == 0
+              ? Divider(color: Colors.green)
+              : Divider(
+                  color: Colors.red,
+                ),
+          itemBuilder: (BuildContext context, int index) => ListTile(
+              title: Text("title $index"), subtitle: Text("body $index"))),
       floatingActionButton: FloatingActionButton(
         onPressed: _incrementCounter,
         tooltip: 'Increment',
@@ -67,4 +80,28 @@ class _MyHomePageState extends State<MyHomePage> {
     ],
     )
  */
+}
+
+class DailyContent {
+  String content;
+  String contentSub;
+  int endState;
+
+  DailyContent({this.content, this.contentSub, this.endState});
+
+  factory DailyContent.fromJson(Map<String, dynamic> parsedJson) {
+    return DailyContent(
+        content: parsedJson['content'],
+        contentSub: parsedJson['contentSub'],
+        endState: parsedJson['endState']);
+  }
+
+  Map<String, dynamic> toJson() {
+    return {'content': content, 'contentSub': contentSub, 'endState': endState};
+  }
+
+  //
+  var dailyContent = DailyContent(content: 'test', contentSub: 'hehe', endState: 1);
+
+
 }
