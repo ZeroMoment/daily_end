@@ -1,4 +1,4 @@
-package com.study.flutter.daily_end;
+package com.study.flutter.dailyend;
 
 import android.os.Bundle;
 import io.flutter.app.FlutterActivity;
