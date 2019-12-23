@@ -3,7 +3,12 @@ class TodoData {
   String id;
   String todoName;
   String todoSub;
+
+  int todoState; //是否完成：1完成  0未完成
+  int todoType; //是否是每天任务: 1每日任务  0普通任务
+
   int todoTime;
+
 
   Map<String, dynamic> toMap() {
     var map = new Map<String, dynamic>();
@@ -11,6 +16,8 @@ class TodoData {
     map['todoName'] = todoName;
     map['todoSub'] = todoSub;
     map['todoTime'] = todoTime;
+    map['todoState'] = todoState;
+    map['todoType'] = todoType;
     return map;
   }
 
@@ -20,6 +27,8 @@ class TodoData {
     todoData.todoName = map['todoName'];
     todoData.todoSub = map['todoSub'];
     todoData.todoTime = map['todoTime'];
+    todoData.todoState = map['todoState'];
+    todoData.todoType = map['todoType'];
     return todoData;
   }
 

@@ -8,8 +8,11 @@ class DatabaseHelper {
   factory DatabaseHelper() => _instance;
   final String tableName = "table_user";
   final String columnId = "id";
-  final String columnName = "name";
-  final String columnAge = "age";
+  final String columnName = "todoName";
+  final String columnSub = "todoSub";
+  final String cloumnTime = "todoTime";
+  final String columnState = "todoState";
+  final String cloumnType = "todoType";
   static Database _db;
 
   Future<Database> get db async {
@@ -32,14 +35,14 @@ class DatabaseHelper {
   //创建数据库表
   void _onCreate(Database db, int version) async {
     await db.execute(
-        "create table $tableName($columnId integer primary key,$columnName text not null ,$columnAge integer not null )");
+        "create table $tableName($columnId integer primary key,$columnName text not null ,$columnSub text not null ,$cloumnTime integer not null ,$columnState integer not null ,$cloumnType integer not null )");
     print("Table is created");
   }
 
 //插入
-  Future<int> saveItem(TodoData user) async {
+  Future<int> saveItem(TodoData todoData) async {
     var dbClient = await db;
-    int res = await dbClient.insert("$tableName", user.toMap());
+    int res = await dbClient.insert("$tableName", todoData.toMap());
     print(res.toString());
     return res;
   }
