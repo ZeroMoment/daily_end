@@ -1,6 +1,9 @@
+import 'package:daily_end/page/edit_todo_page.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_custom_dialog/flutter_custom_dialog.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:path/path.dart';
+
 
 void main() => runApp(MyApp());
 
@@ -17,7 +20,10 @@ class MyApp extends StatelessWidget {
       home: MyHomePage(title: 'Daily Home'),
     );
   }
+
 }
+
+
 
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key key, this.title}) : super(key: key);
@@ -31,18 +37,63 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
 
-  Future _incrementCounter() async {
-    final Future<Database> database = openDatabase(
-        join(await getDatabasesPath(), 'daily_database.db'),
-        onCreate: (db, version)=>db.execute("CREATE TABLE dailysettle(id INTEGER PRIMARY KEY, content TEXT, contentSub TEXT, endState INTEGER)"),
-    onUpgrade: (db, oldVersion, newVersion) {
+  void _incrementCounter() {
 
-    },
-    version: 1,
+    Navigator.of(context).push(
+        MaterialPageRoute(
+          //没有传值
+            builder: (context)=>EditTodoPage()
+        )
     );
+
+
+//    final Future<Database> database = openDatabase(
+//        join(await getDatabasesPath(), 'daily_database.db'),
+//        onCreate: (db, version)=>db.execute("CREATE TABLE dailysettle(id INTEGER PRIMARY KEY, content TEXT, contentSub TEXT, endState INTEGER)"),
+//    onUpgrade: (db, oldVersion, newVersion) {
+//
+//    },
+//    version: 1,
+//    );
 //    setState(() {
 //      _counter++;
 //    });
+  }
+
+  YYDialog YYAlertDialogWithDivider(BuildContext context) {
+    return YYDialog().build(context)
+      ..width = 320
+      ..borderRadius = 15.0
+      ..text(
+        padding: EdgeInsets.all(25.0),
+        alignment: Alignment.center,
+        text: "确定要退出应用吗?",
+        color: Colors.black,
+        fontSize: 14.0,
+        fontWeight: FontWeight.w500,
+      )
+      ..divider()
+      ..doubleButton(
+        padding: EdgeInsets.only(top: 10.0),
+        gravity: Gravity.center,
+        withDivider: true,
+        text1: "取消",
+        color1: Colors.redAccent,
+        fontSize1: 14.0,
+        fontWeight1: FontWeight.bold,
+        onTap1: () {
+          print("取消");
+        },
+        text2: "确定",
+        color2: Colors.redAccent,
+        fontSize2: 14.0,
+        fontWeight2: FontWeight.bold,
+        onTap2: () {
+          print("确定");
+          SystemNavigator.pop();
+        },
+      )
+    ..show();
   }
 
   @override
@@ -51,15 +102,20 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: Text(widget.title),
       ),
-      body: ListView.separated(
-          itemCount: 10,
-          separatorBuilder: (BuildContext context, int index) => index % 2 == 0
-              ? Divider(color: Colors.green)
-              : Divider(
-                  color: Colors.red,
-                ),
-          itemBuilder: (BuildContext context, int index) => ListTile(
-              title: Text("title $index"), subtitle: Text("body $index"))),
+      body: WillPopScope(
+          child: ListView.separated(
+              itemCount: 10,
+              separatorBuilder: (BuildContext context, int index) => index % 2 == 0
+                  ? Divider(color: Colors.green)
+                  : Divider(
+                color: Colors.red,
+              ),
+              itemBuilder: (BuildContext context, int index) => ListTile(
+                  title: Text("title $index"), subtitle: Text("body $index"))), onWillPop: (){
+            print('也有返回？');
+            YYAlertDialogWithDivider(context);
+      }
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: _incrementCounter,
         tooltip: 'Increment',
