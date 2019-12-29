@@ -6,7 +6,7 @@ import 'package:daily_end/model/todo_data.dart';
 class DatabaseHelper {
   static final DatabaseHelper _instance = DatabaseHelper.internal();
   factory DatabaseHelper() => _instance;
-  final String tableName = "table_user";
+  final String tableName = "table_todo";
   final String columnId = "id";
   final String columnName = "todoName";
   final String columnSub = "todoSub";
@@ -27,7 +27,7 @@ class DatabaseHelper {
 
   initDb() async {
     var databasesPath = await getDatabasesPath();
-    String path = join(databasesPath, 'sqflite.db');
+    String path = join(databasesPath, 'daily.db');
     var ourDb = await openDatabase(path, version: 1, onCreate: _onCreate);
     return ourDb;
   }
