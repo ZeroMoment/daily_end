@@ -16,8 +16,13 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      routes: {
-        "todo_edit": (context) => EditTodoPage(),
+      onGenerateRoute: (RouteSettings settings) {
+        print('build route for ${settings.name}');
+        var routes = <String, WidgetBuilder>{
+          EditTodoPage.routeName: (ctx) => EditTodoPage(settings.arguments),
+        };
+        WidgetBuilder builder = routes[settings.name];
+        return MaterialPageRoute(builder: (ctx) => builder(ctx));
       },
       home: MyHomePage(title: 'Daily Home'),
     );
@@ -61,7 +66,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _addTodo() {
-    Navigator.pushNamed(context, "todo_edit", arguments: 'dbid');
+    Navigator.pushNamed(context, EditTodoPage.routeName, arguments: 'dbid');
   }
 
   @override
@@ -71,17 +76,18 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(widget.title),
       ),
       body: WillPopScope(
-          child: isInited ? _getInitedWidget() : Center(
-            child: SizedBox(
-              height: 100.0,
-              width: 100.0,
-              child: CircularProgressIndicator(),
-            ),
-          ),
+          child: isInited
+              ? _getInitedWidget()
+              : Center(
+                  child: SizedBox(
+                    height: 100.0,
+                    width: 100.0,
+                    child: CircularProgressIndicator(),
+                  ),
+                ),
           onWillPop: () {
             _showExitDialog();
-          }
-          ),
+          }),
       floatingActionButton: FloatingActionButton(
         onPressed: _addTodo,
         tooltip: 'Todo Add',
@@ -91,25 +97,21 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Widget _getInitedWidget() {
-
-//    RefreshIndicator(
-//      onRefresh: _getDataFromDb,
-//      child: isInited
-//          ? _getInitedWidget()
-//          : ,
-//    )
-
     return _todoList.length > 0
-        ? ListView.separated(
-            itemCount: _todoList.length,
-            separatorBuilder: (BuildContext context, int index) =>
-                index % 2 == 0
-                    ? Divider(color: Colors.green)
-                    : Divider(
-                        color: Colors.red,
-                      ),
-            itemBuilder: (BuildContext context, int index) => ListTile(
-                title: Text("title $index"), subtitle: Text("body $index")))
+        ? RefreshIndicator(
+            onRefresh: _getDataFromDb,
+            child: ListView.separated(
+                itemCount: _todoList.length,
+                separatorBuilder: (BuildContext context, int index) =>
+                    index % 2 == 0
+                        ? Divider(color: Colors.green)
+                        : Divider(
+                            color: Colors.red,
+                          ),
+                itemBuilder: (BuildContext context, int index) => ListTile(
+                    title: Text("title $index"),
+                    subtitle: Text("body $index"))),
+          )
         : Center(
             child: Text(
               'No data yet',
