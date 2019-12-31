@@ -1,3 +1,4 @@
+import 'package:daily_end/localization/todo_localizations.dart';
 import 'package:flutter/material.dart';
 
 ///自定义Dialog
@@ -82,7 +83,7 @@ class _CustomDialogState extends State<YaCustomDialog> {
                       ),
                       child: FlatButton(
                         child: Text(
-                            'Cancel',
+                            TodoLocalizations.of(context).cancel,
                             style: TextStyle(
                               fontSize: 16.0,
                               color: widget.cancelColor == null ? Colors.black87 : Color(0xFFFFFFFF),
@@ -105,7 +106,7 @@ class _CustomDialogState extends State<YaCustomDialog> {
                       child: FlatButton(
                         onPressed: _confirmDialog,
                         child: Text(
-                            widget.confirmContent == null ? 'Confirm' : widget.confirmContent,
+                            widget.confirmContent == null ? TodoLocalizations.of(context).confirm : widget.confirmContent,
                             style: TextStyle(
                               fontSize: 16.0,
                               color: widget.confirmColor == null ? (widget.confirmTextColor == null ? Colors.black87 : widget.confirmTextColor) : Color(0xFFFFFFFF),

@@ -1,3 +1,4 @@
+import 'package:daily_end/localization/todo_localizations.dart';
 import 'package:daily_end/widget/net_loading_dialog.dart';
 import 'package:flutter/material.dart';
 
@@ -36,8 +37,7 @@ class _EditTodoPageState extends State<EditTodoPage> {
     print('build。。。');
     return Scaffold(
       appBar: AppBar(
-        centerTitle: true,
-        title: Text('我的待办'),
+        title: Text(TodoLocalizations.of(context).titleEditTodo),
       ),
       body: Container(
       ),
