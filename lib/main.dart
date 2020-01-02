@@ -61,10 +61,11 @@ class _MyHomePageState extends State<MyHomePage> {
 
   bool isChecked = false;
 
+  bool isHaveHistory = false; //是否有历史数据
+
   @override
   void initState() {
     super.initState();
-
     _getVersoinInfo();
     _getDataFromDb();
   }
@@ -77,6 +78,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Future<void> _getDataFromDb() async {
     List dbList = await db.getTotalList();
     if (dbList.length > 0) {
+      isHaveHistory = true;
       _todoList.clear();
       dbList.forEach((todoData) {
         TodoData itemData = TodoData.fromMap(todoData);
@@ -212,7 +214,7 @@ class _MyHomePageState extends State<MyHomePage> {
           )
         : Center(
             child: Text(
-              TodoLocalizations.of(context).emptyTxt,
+              isHaveHistory ? TodoLocalizations.of(context).goodTaskTxt : TodoLocalizations.of(context).emptyTxt,
               style: TextStyle(color: Colors.blue, fontSize: 22.0),
             ),
           );

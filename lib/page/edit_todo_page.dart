@@ -38,16 +38,15 @@ class _EditTodoPageState extends State<EditTodoPage> {
   void _getTodoById() async {
     if (widget.todoId > 0) {
       _editTodo = await _databaseHelper.getItem(widget.todoId);
-      Future.delayed(Duration(seconds: 2), () {
+      if (_editTodo != null) {
         setState(() {
           print('name:${_editTodo.todoName}--sub:${_editTodo.todoSub}');
-          if(_editTodo != null) {
-            _todoNameController.text = _editTodo.todoName;
-            _todoSubController.text = _editTodo.todoSub;
-            _isChecked = _editTodo.todoType == 1;
-          }
+
+          _todoNameController.text = _editTodo.todoName;
+          _todoSubController.text = _editTodo.todoSub;
+          _isChecked = _editTodo.todoType == 1;
         });
-      });
+      }
     }
   }
 

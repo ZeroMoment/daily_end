@@ -69,6 +69,10 @@ class TodoLocalizations {
     return isZh ? "还没有数据" : "No data yet";
   }
 
+  String get goodTaskTxt {
+    return isZh ? "都完成了，很棒！" : "It's all done, great!";
+  }
+
   String get everyTask {
     return isZh ? "每日任务" : "Daily tasks";
   }
