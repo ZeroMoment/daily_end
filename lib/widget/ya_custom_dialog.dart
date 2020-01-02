@@ -60,9 +60,12 @@ class _CustomDialogState extends State<YaCustomDialog> {
         ),
         Expanded(
             child: Center(
-              child: Text(
-                  widget.content == null ? '' : widget.content,
-                  style: TextStyle(fontSize: 14.0)
+              child: Container(
+                padding: EdgeInsets.only(left: 15.0, right: 15.0),
+                child: Text(
+                    widget.content == null ? '' : widget.content,
+                    style: TextStyle(fontSize: 14.0)
+                ),
               ),
             ),
             flex: 1

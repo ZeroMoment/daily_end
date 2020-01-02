@@ -42,7 +42,7 @@ class NetLoadingDialog extends StatelessWidget {
                   new CircularProgressIndicator(),
                   Padding(
                     padding: const EdgeInsets.only(top: 20),
-                    child: new Text(tipTxt == null ? "加载中" : tipTxt),
+                    child: new Text(tipTxt == null ? "loading" : tipTxt),
                   ),
                 ],
               ),

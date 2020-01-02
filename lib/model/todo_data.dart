@@ -1,6 +1,6 @@
 class TodoData {
 
-  String id;
+  int id;
   String todoName;
   String todoSub;
 
