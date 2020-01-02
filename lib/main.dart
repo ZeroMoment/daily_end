@@ -4,6 +4,7 @@ import 'package:daily_end/localization/todo_localizations_delegate.dart';
 import 'package:daily_end/model/todo_data.dart';
 import 'package:daily_end/page/ad_banner_page.dart';
 import 'package:daily_end/page/edit_todo_page.dart';
+import 'package:daily_end/page/history_todo_page.dart';
 import 'package:daily_end/util/common_util.dart';
 import 'package:firebase_admob/firebase_admob.dart';
 import 'package:flutter/material.dart';
@@ -36,7 +37,8 @@ class MyApp extends StatelessWidget {
         print('build route for ${settings.name}');
         var routes = <String, WidgetBuilder>{
           EditTodoPage.routeName: (ctx) => EditTodoPage(settings.arguments),
-          AdBannerPage.routeName: (ctx) => AdBannerPage()
+          AdBannerPage.routeName: (ctx) => AdBannerPage(),
+          HistoryTodoPage.routeName: (ctx) => HistoryTodoPage()
         };
         WidgetBuilder builder = routes[settings.name];
         return MaterialPageRoute(builder: (ctx) => builder(ctx));
@@ -149,7 +151,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ListTile(
               title: Text(TodoLocalizations.of(context).drawerItemHistory),
               onTap: () {
-                Navigator.pop(context);
+                Navigator.popAndPushNamed(context, HistoryTodoPage.routeName);
               },
             ),
             ListTile(
@@ -230,7 +232,7 @@ class _MyHomePageState extends State<MyHomePage> {
       },
       child: Container(
         width: MediaQuery.of(context).size.width,
-        color: Colors.white,
+        color: Colors.transparent,
         child: Row(
           children: <Widget>[
             SizedBox(width: 20.0,),

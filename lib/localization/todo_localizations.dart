@@ -78,9 +78,12 @@ class TodoLocalizations {
   }
 
   String get unDone {
-    return isZh ? "未完成" : "undone";
+    return isZh ? "未完成" : "UnDone";
   }
 
+  String get done {
+    return isZh ? "已完成" : "Done";
+  }
 
   String get exitTip {
     return isZh ? "你确定要退出应用吗？" : "Are you sure you want to exit the app？";
