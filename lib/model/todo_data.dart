@@ -9,6 +9,8 @@ class TodoData {
 
   int todoTime;
 
+  bool istimeLine = false;
+
 
   Map<String, dynamic> toMap() {
     var map = new Map<String, dynamic>();

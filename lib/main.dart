@@ -61,8 +61,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
   String _versionTxt;
 
-  bool isChecked = false;
-
   bool isHaveHistory = false; //是否有历史数据
 
   @override
@@ -237,11 +235,11 @@ class _MyHomePageState extends State<MyHomePage> {
           children: <Widget>[
             SizedBox(width: 20.0,),
             Checkbox(
-              value: isChecked,
+              value: todoData.todoState == 1,
               activeColor: Colors.red, //选中时的颜色
               onChanged: (value) {
                 setState(() {
-                  isChecked = value;
+                  todoData.todoState = 1;
                 });
                 Future.delayed(Duration(seconds: 1), () {
                   _updateTodoState(todoData);

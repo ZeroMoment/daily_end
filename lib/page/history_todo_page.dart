@@ -2,6 +2,7 @@ import 'package:daily_end/db/database_helper.dart';
 import 'package:daily_end/localization/todo_localizations.dart';
 import 'package:daily_end/model/todo_data.dart';
 import 'package:daily_end/util/common_util.dart';
+import 'package:date_format/date_format.dart';
 import 'package:flutter/material.dart';
 
 class HistoryTodoPage extends StatefulWidget {
@@ -28,7 +29,14 @@ class _HistoryTodoPageState extends State<HistoryTodoPage> {
   Future<void> _getDataFromDb() async {
     List dbList = await db.getTotalList();
     if (dbList.length > 0) {
+      _tempCount = 0;
       _todoList.clear();
+      //处理第一个时间分组
+      TodoData firstItem = TodoData.fromMap(dbList[0]);
+      TodoData timeLineData = new TodoData();
+      timeLineData.todoTime = firstItem.todoTime;
+      timeLineData.istimeLine = true;
+      _todoList.add(timeLineData);
       dbList.forEach((todoData) {
         TodoData itemData = TodoData.fromMap(todoData);
         _operateTodoList(itemData);
@@ -40,6 +48,9 @@ class _HistoryTodoPageState extends State<HistoryTodoPage> {
     });
   }
 
+  int _tempCount = 0;
+  bool isDayEquals = false;
+  int _tempTimeMill = 0;
   /**
    * 过滤每日任务、已完成任务
    */
@@ -50,7 +61,21 @@ class _HistoryTodoPageState extends State<HistoryTodoPage> {
         _todoList.add(itemData);
       }
     } else {
+      if(_tempCount > 0 && _tempTimeMill > 0) {
+        isDayEquals = CommonUtil.dayIsEqual(_tempTimeMill, itemData.todoTime);
+      }
+
+      if(_tempCount == 0 || isDayEquals) {
+        TodoData timeLineData = new TodoData();
+        timeLineData.todoTime = itemData.todoTime;
+        timeLineData.istimeLine = true;
+        _todoList.add(timeLineData);
+
+        _tempTimeMill = itemData.todoTime;
+      }
+
       _todoList.add(itemData);
+      _tempCount++;
     }
   }
 
@@ -74,14 +99,15 @@ class _HistoryTodoPageState extends State<HistoryTodoPage> {
 
   Widget _getInitedWidget() {
     return _todoList.length > 0
-        ? ListView.separated(
+        ? ListView.builder(
             itemCount: _todoList.length,
-            separatorBuilder: (BuildContext context, int index) =>
-                index % 2 == 0
-                    ? Divider(color: Colors.green)
-                    : Divider(color: Colors.red),
             itemBuilder: (BuildContext context, int index) {
-              return _createTodoItem(_todoList[index], index);
+              TodoData itemData = _todoList[index];
+              if(itemData.istimeLine) {
+                 return _createTimeline(itemData.todoTime);
+              } else {
+                return _createTodoItem(itemData);
+              }
             })
         : Center(
             child: Text(
@@ -91,45 +117,66 @@ class _HistoryTodoPageState extends State<HistoryTodoPage> {
           );
   }
 
-  Widget _createTodoItem(TodoData todoData, int postion) {
-    return Row(
+  //创建时间分级
+  Widget _createTimeline(int millTime) {
+    DateTime historyTime = DateTime.fromMillisecondsSinceEpoch(millTime);
+    String historyTimeLineTxt = formatDate(historyTime, [yyyy, '-', mm, '-', dd]);
+    return Container(
+      padding: EdgeInsets.only(left: 15.0),
+      width: MediaQuery.of(context).size.width,
+      height: 30.0,
+      color: CommonUtil.hexToColor("#ebebeb"),
+      alignment: Alignment.centerLeft,
+      child: Text(historyTimeLineTxt, style: TextStyle(color: Colors.white),),
+    );
+
+  }
+
+  //历史记录item
+  Widget _createTodoItem(TodoData todoData) {
+    return Column(
       children: <Widget>[
-        SizedBox(
-          width: 20.0,
-        ),
-        Text(
-          todoData.todoState == 1
-              ? TodoLocalizations.of(context).done
-              : TodoLocalizations.of(context).unDone,
-          style: TextStyle(
-              color: todoData.todoState == 1 ? Colors.green : Colors.red,
-              fontSize: 20.0),
-        ),
-        SizedBox(
-          width: 10.0,
-        ),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        Row(
           children: <Widget>[
+            SizedBox(
+              width: 20.0,
+            ),
             Text(
-              todoData.todoType == 1
-                  ? '(${TodoLocalizations.of(context).everyTask})${todoData.todoName}'
-                  : todoData.todoName,
+              todoData.todoState == 1
+                  ? TodoLocalizations.of(context).done
+                  : TodoLocalizations.of(context).unDone,
               style: TextStyle(
                   color: todoData.todoState == 1 ? Colors.green : Colors.red,
-                  fontSize: 18.0),
-              maxLines: 1,
+                  fontSize: 20.0),
             ),
             SizedBox(
-              height: 10.0,
+              width: 10.0,
             ),
-            Text(
-              todoData.todoSub,
-              style: TextStyle(color: Colors.grey, fontSize: 14.0),
-              maxLines: 1,
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text(
+                  todoData.todoType == 1
+                      ? '(${TodoLocalizations.of(context).everyTask})${todoData.todoName}'
+                      : todoData.todoName,
+                  style: TextStyle(
+                      color: todoData.todoState == 1 ? (todoData.todoType == 1 ? Colors.blue : Colors.grey) : Colors.red,
+                      fontSize: 18.0),
+                  maxLines: 1,
+                ),
+                SizedBox(
+                  height: 10.0,
+                ),
+                Text(
+                  todoData.todoSub,
+                  style: TextStyle(color: Colors.grey, fontSize: 14.0),
+                  maxLines: 1,
+                )
+              ],
             )
           ],
-        )
+        ),
+        Divider(color: Colors.green,)
       ],
     );
   }
