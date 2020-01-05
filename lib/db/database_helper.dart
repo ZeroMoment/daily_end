@@ -1,12 +1,12 @@
-import 'package:sqflite/sqflite.dart';
-import 'package:path/path.dart';
-
 import 'package:daily_end/model/todo_data.dart';
+import 'package:path/path.dart';
+import 'package:sqflite/sqflite.dart';
 
 class DatabaseHelper {
   static final DatabaseHelper _instance = DatabaseHelper.internal();
   factory DatabaseHelper() => _instance;
   final String tableName = "table_todo";
+  final String historyTableName = "table_todo_history";
   final String columnId = "id";
   final String columnName = "todoName";
   final String columnSub = "todoSub";
@@ -28,16 +28,42 @@ class DatabaseHelper {
   initDb() async {
     var databasesPath = await getDatabasesPath();
     String path = join(databasesPath, 'daily.db');
-    var ourDb = await openDatabase(path, version: 1, onCreate: _onCreate);
+    var ourDb = await openDatabase(path, version: 1, onCreate: _onCreate); //, onUpgrade: _onUpgrade
     return ourDb;
   }
 
   //创建数据库表
   void _onCreate(Database db, int version) async {
-    await db.execute(
-        "create table $tableName($columnId integer primary key,$columnName text not null ,$columnSub text not null ,$cloumnTime integer not null ,$columnState integer not null ,$cloumnType integer not null )");
-    print("Table is created");
+    var batch = db.batch();
+    _createTableCompanyV1(batch);
+//    _updateTableCompanyV1toV2(batch);
+
+    await batch.commit();
+
   }
+
+//  void _onUpgrade(Database db, int oldversion, int newVersion) async {
+//    var batch = db.batch();
+//    if(oldversion == 1) {
+//      _updateTableCompanyV1toV2(batch);
+//    }
+//
+//    await batch.commit();
+//  }
+
+  ///创建数据库--初始版本
+  void _createTableCompanyV1(Batch batch) {
+    batch.execute(
+      "create table $tableName($columnId integer primary key,$columnName text not null ,$columnSub text not null ,$cloumnTime integer not null ,$columnState integer not null ,$cloumnType integer not null )",
+    );
+  }
+
+//  ///更新数据库Version: 1->2.
+//  void _updateTableCompanyV1toV2(Batch batch) {
+////    batch.execute('ALTER TABLE $tableName ADD $columnIsSelect BOOL');
+//    batch.execute("create table $historyTableName($columnId integer primary key,$columnName text not null ,$columnSub text not null ,$cloumnTime integer not null ,$columnState integer not null ,$cloumnType integer not null )");
+//  }
+
 
 //插入
   Future<int> saveItem(TodoData todoData) async {

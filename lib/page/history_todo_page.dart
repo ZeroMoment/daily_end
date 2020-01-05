@@ -33,10 +33,14 @@ class _HistoryTodoPageState extends State<HistoryTodoPage> {
       _todoList.clear();
       //处理第一个时间分组
       TodoData firstItem = TodoData.fromMap(dbList[0]);
-      TodoData timeLineData = new TodoData();
-      timeLineData.todoTime = firstItem.todoTime;
-      timeLineData.istimeLine = true;
-      _todoList.add(timeLineData);
+      if (CommonUtil.isToday(firstItem.todoTime)) {
+        if (firstItem.todoState == 1) {
+          TodoData timeLineData = new TodoData();
+          timeLineData.todoTime = firstItem.todoTime;
+          timeLineData.istimeLine = true;
+          _todoList.add(timeLineData);
+        }
+      }
       dbList.forEach((todoData) {
         TodoData itemData = TodoData.fromMap(todoData);
         _operateTodoList(itemData);
@@ -176,7 +180,7 @@ class _HistoryTodoPageState extends State<HistoryTodoPage> {
             )
           ],
         ),
-        Divider(color: Colors.green,)
+        Divider(color: Colors.green, height: 1.0,)
       ],
     );
   }

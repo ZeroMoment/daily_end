@@ -107,7 +107,7 @@ class TodoLocalizations {
 
   String get tipWarmContent {
     return isZh
-        ? "应用没有连接任何服务器，所有数据都存储在本地。请不要清除应用的本地缓存数据。经济情况好一些的时候，会加上数据上传。"
-        : "The application is not connected to any server and all data is stored locally. Do not clear your app ’s local cache data.When the economic situation is better, data upload will be added.";
+        ? "每日进入app才能产生历史数据，应用没有连接任何服务器，所有数据都存储在本地。请不要清除应用的本地缓存数据。经济情况好一些的时候，会加上数据上传。"
+        : "The application is not connected to any server and all data is stored locally. Do not clear your app ’s local cache data.When the economic situation is better, data upload will be added.Now,Enter the app daily to generate historical data";
   }
 }

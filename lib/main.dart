@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:package_info/package_info.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'widget/ya_custom_dialog.dart';
 
@@ -54,10 +55,15 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  SharedPreferences _preferences;
+
   List<TodoData> _todoList = new List();
   var db = DatabaseHelper();
 
+  //是否初始化数据完成
   bool isInited = false;
+  //是否已经设置了每日任务的偏好存储
+  bool isTodaySetEvery = false;
 
   String _versionTxt;
 
@@ -66,8 +72,13 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
+    _initShareP();
     _getVersoinInfo();
     _getDataFromDb();
+  }
+
+  void _initShareP() async {
+    _preferences = await SharedPreferences.getInstance();
   }
 
   Future<void> _getVersoinInfo() async {
@@ -78,6 +89,9 @@ class _MyHomePageState extends State<MyHomePage> {
   Future<void> _getDataFromDb() async {
     List dbList = await db.getTotalList();
     if (dbList.length > 0) {
+      int setTime = _preferences.getInt("every_set_time");
+      isTodaySetEvery = CommonUtil.isToday(setTime);
+
       isHaveHistory = true;
       _todoList.clear();
       dbList.forEach((todoData) {
@@ -85,6 +99,10 @@ class _MyHomePageState extends State<MyHomePage> {
         _operateTodoList(itemData);
       });
     }
+
+    if (!isTodaySetEvery)
+      await _preferences.setInt(
+          "every_set_time", DateTime.now().millisecondsSinceEpoch);
 
     setState(() {
       isInited = true;
@@ -95,37 +113,43 @@ class _MyHomePageState extends State<MyHomePage> {
    * 过滤每日任务、已完成任务
    */
   void _operateTodoList(TodoData itemData) {
-    if(CommonUtil.isToday(itemData.todoTime)) {
-      if(itemData.todoState == 0) {
+    if (CommonUtil.isToday(itemData.todoTime)) {
+      if (itemData.todoState == 0) {
         _todoList.add(itemData);
       }
-    } else{
-      if(itemData.todoType == 1) {
+    } else {
+      if (itemData.todoType == 1 && !isTodaySetEvery) {
+        itemData.id = 0;
+        itemData.todoState = 0;
+        itemData.todoTime = DateTime.now().millisecondsSinceEpoch;
+        db.saveItem(itemData);
         _todoList.add(itemData);
       }
     }
   }
 
   void _addTodo(int todoId) async {
-    var result = await Navigator.pushNamed(context, EditTodoPage.routeName, arguments: todoId);
+    var result = await Navigator.pushNamed(context, EditTodoPage.routeName,
+        arguments: todoId);
     print('add result:$result');
-    if(result == 'operated') {
+    if (result == 'operated') {
       _getDataFromDb();
     }
   }
 
-  void _updateTodoState(TodoData todoData) async{
+  void _updateTodoState(TodoData todoData, int position) async {
     todoData.todoState = 1;
     await db.updateItem(todoData);
     setState(() {
-      _getDataFromDb();
+      //设置已完成，就是从显示列表中删除
+      _todoList.removeAt(position);
     });
   }
 
-  void _deleteTodo(TodoData todoData) async {
+  void _deleteTodo(TodoData todoData, int position) async {
     await db.deleteItem(todoData.id);
     setState(() {
-      _getDataFromDb();
+      _todoList.removeAt(position);
     });
   }
 
@@ -209,12 +233,13 @@ class _MyHomePageState extends State<MyHomePage> {
                         : Divider(color: Colors.red),
                 itemBuilder: (BuildContext context, int index) {
                   return _createTodoItem(_todoList[index], index);
-                }
-                ),
+                }),
           )
         : Center(
             child: Text(
-              isHaveHistory ? TodoLocalizations.of(context).goodTaskTxt : TodoLocalizations.of(context).emptyTxt,
+              isHaveHistory
+                  ? TodoLocalizations.of(context).goodTaskTxt
+                  : TodoLocalizations.of(context).emptyTxt,
               style: TextStyle(color: Colors.blue, fontSize: 22.0),
             ),
           );
@@ -223,7 +248,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget _createTodoItem(TodoData todoData, int postion) {
     return GestureDetector(
       onLongPress: () {
-        _showDeleteDialog(todoData);
+        _showDeleteDialog(todoData, postion);
       },
       onTap: () {
         _addTodo(todoData.id);
@@ -233,7 +258,9 @@ class _MyHomePageState extends State<MyHomePage> {
         color: Colors.transparent,
         child: Row(
           children: <Widget>[
-            SizedBox(width: 20.0,),
+            SizedBox(
+              width: 20.0,
+            ),
             Checkbox(
               value: todoData.todoState == 1,
               activeColor: Colors.red, //选中时的颜色
@@ -242,17 +269,34 @@ class _MyHomePageState extends State<MyHomePage> {
                   todoData.todoState = 1;
                 });
                 Future.delayed(Duration(seconds: 1), () {
-                  _updateTodoState(todoData);
+                  _updateTodoState(todoData, postion);
                 });
               },
             ),
-            SizedBox(width: 10.0,),
+            SizedBox(
+              width: 10.0,
+            ),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                Text(todoData.todoType == 1 ? '(${TodoLocalizations.of(context).everyTask})${todoData.todoName}' : todoData.todoName, style: TextStyle(color: todoData.todoType == 1 ? Colors.blue:Colors.black, fontSize: 18.0), maxLines: 1,),
-                SizedBox(height: 10.0,),
-                Text(todoData.todoSub, style: TextStyle(color: Colors.black38, fontSize: 14.0), maxLines: 1,)
+                Text(
+                  todoData.todoType == 1
+                      ? '(${TodoLocalizations.of(context).everyTask})${todoData.todoName}'
+                      : todoData.todoName,
+                  style: TextStyle(
+                      color:
+                          todoData.todoType == 1 ? Colors.blue : Colors.black,
+                      fontSize: 18.0),
+                  maxLines: 1,
+                ),
+                SizedBox(
+                  height: 10.0,
+                ),
+                Text(
+                  todoData.todoSub,
+                  style: TextStyle(color: Colors.black38, fontSize: 14.0),
+                  maxLines: 1,
+                )
               ],
             )
           ],
@@ -287,14 +331,14 @@ class _MyHomePageState extends State<MyHomePage> {
         });
   }
 
-  void _showDeleteDialog(TodoData todoData) {
+  void _showDeleteDialog(TodoData todoData, int position) {
     showDialog<Null>(
         context: context,
         builder: (BuildContext context) {
           return YaCustomDialog(
             content: TodoLocalizations.of(context).deleteTip,
             confirmCallback: () {
-              _deleteTodo(todoData);
+              _deleteTodo(todoData, position);
             },
             outsideDismiss: true,
           );
