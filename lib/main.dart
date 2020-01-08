@@ -72,13 +72,24 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
-    _initShareP();
     _getVersoinInfo();
-    _getDataFromDb();
+
+    _initShareP().then((_) {
+      if (isTodaySetEvery) {
+        _getDataFromDb();
+      } else {
+        //处理一下历史数据，针对每日任务
+        _checkAndHandleData().then((_) {
+          _getDataFromDb();
+        });
+      }
+    });
   }
 
-  void _initShareP() async {
+  Future<void> _initShareP() async {
     _preferences = await SharedPreferences.getInstance();
+    int setTime = _preferences.getInt("every_set_time");
+    isTodaySetEvery = CommonUtil.isToday(setTime);
   }
 
   Future<void> _getVersoinInfo() async {
@@ -86,14 +97,12 @@ class _MyHomePageState extends State<MyHomePage> {
     _versionTxt = packageInfo.version;
   }
 
-  Future<void> _getDataFromDb() async {
-    List dbList = await db.getTotalList();
+  Future<void> _checkAndHandleData() async {
+    print("_checkAndHandleData......");
+    List dbList = await db.getTotalListRevers();
     if (dbList.length > 0) {
-      int setTime = _preferences.getInt("every_set_time");
-      isTodaySetEvery = CommonUtil.isToday(setTime);
-
       isHaveHistory = true;
-      _todoList.clear();
+
       dbList.forEach((todoData) {
         TodoData itemData = TodoData.fromMap(todoData);
         _operateTodoList(itemData);
@@ -103,29 +112,72 @@ class _MyHomePageState extends State<MyHomePage> {
     if (!isTodaySetEvery)
       await _preferences.setInt(
           "every_set_time", DateTime.now().millisecondsSinceEpoch);
+  }
+
+  //获取进入待办进行显示
+  Future<void> _getDataFromDb() async {
+    print("_checkAndHandleData......");
+    List dbList = await db.getTotalList();
+    if (dbList.length > 0) {
+      _todoList.clear();
+
+      print("list.size:${_todoList.length}");
+      dbList.forEach((todoData) {
+        TodoData itemData = TodoData.fromMap(todoData);
+        if (CommonUtil.isToday(itemData.todoTime)) {
+          if (itemData.todoState == 0) {
+            _todoList.add(itemData);
+          }
+        }
+      });
+    }
 
     setState(() {
       isInited = true;
     });
   }
 
+  int _tempCount = 0;
+  bool _isSetAnother = false; //设置一次非今天的时间，只要设置一次
+  int _anotherDayTime;
+
   /**
    * 过滤每日任务、已完成任务
    */
-  void _operateTodoList(TodoData itemData) {
+  void _operateTodoList(TodoData itemData) async {
+    print("isTodaySetEvery:$isTodaySetEvery");
+
     if (CommonUtil.isToday(itemData.todoTime)) {
-      if (itemData.todoState == 0) {
-        _todoList.add(itemData);
-      }
-    } else {
-      if (itemData.todoType == 1 && !isTodaySetEvery) {
-        itemData.id = 0;
-        itemData.todoState = 0;
-        itemData.todoTime = DateTime.now().millisecondsSinceEpoch;
-        db.saveItem(itemData);
-        _todoList.add(itemData);
+      return;
+    }
+    if (!_isSetAnother) {
+      _anotherDayTime = itemData.todoTime;
+    }
+    _isSetAnother = true;
+
+    if (itemData.todoType == 1) {
+      if (_tempCount > 0) {
+        bool isOldEquals = CommonUtil.dayIsEqual(
+            _anotherDayTime, itemData.todoTime); //只去过去时间同一天的数据
+        if (!isOldEquals) {
+          return;
+        }
+        _addNewItem(itemData);
+      } else {
+        _addNewItem(itemData);
+        _tempCount++;
       }
     }
+  }
+
+  void _addNewItem(TodoData itemData) async {
+    TodoData tempData = new TodoData();
+    tempData.todoType = itemData.todoType;
+    tempData.todoName = itemData.todoName;
+    tempData.todoSub = itemData.todoSub;
+    tempData.todoState = 0;
+    tempData.todoTime = DateTime.now().millisecondsSinceEpoch;
+    await db.saveItem(tempData);
   }
 
   void _addTodo(int todoId) async {

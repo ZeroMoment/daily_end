@@ -76,7 +76,13 @@ class DatabaseHelper {
   //查询
   Future<List> getTotalList() async {
     var dbClient = await db;
-    var result = await dbClient.rawQuery("SELECT * FROM $tableName ");
+    var result = await dbClient.rawQuery("SELECT * FROM $tableName");
+    return result.toList();
+  }
+
+  Future<List> getTotalListRevers() async {
+    var dbClient = await db;
+    var result = await dbClient.rawQuery("SELECT * FROM $tableName ORDER BY $columnId DESC");
     return result.toList();
   }
 

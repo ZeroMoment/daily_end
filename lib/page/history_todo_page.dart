@@ -27,7 +27,7 @@ class _HistoryTodoPageState extends State<HistoryTodoPage> {
   }
 
   Future<void> _getDataFromDb() async {
-    List dbList = await db.getTotalList();
+    List dbList = await db.getTotalListRevers();
     if (dbList.length > 0) {
       _tempCount = 0;
       _todoList.clear();
@@ -65,11 +65,11 @@ class _HistoryTodoPageState extends State<HistoryTodoPage> {
         _todoList.add(itemData);
       }
     } else {
-      if(_tempCount > 0 && _tempTimeMill > 0) {
+      if (_tempCount > 0 && _tempTimeMill > 0) {
         isDayEquals = CommonUtil.dayIsEqual(_tempTimeMill, itemData.todoTime);
       }
 
-      if(_tempCount == 0 || isDayEquals) {
+      if (_tempCount == 0 || !isDayEquals) {
         TodoData timeLineData = new TodoData();
         timeLineData.todoTime = itemData.todoTime;
         timeLineData.istimeLine = true;
@@ -107,8 +107,8 @@ class _HistoryTodoPageState extends State<HistoryTodoPage> {
             itemCount: _todoList.length,
             itemBuilder: (BuildContext context, int index) {
               TodoData itemData = _todoList[index];
-              if(itemData.istimeLine) {
-                 return _createTimeline(itemData.todoTime);
+              if (itemData.istimeLine) {
+                return _createTimeline(itemData.todoTime);
               } else {
                 return _createTodoItem(itemData);
               }
@@ -124,22 +124,26 @@ class _HistoryTodoPageState extends State<HistoryTodoPage> {
   //创建时间分级
   Widget _createTimeline(int millTime) {
     DateTime historyTime = DateTime.fromMillisecondsSinceEpoch(millTime);
-    String historyTimeLineTxt = formatDate(historyTime, [yyyy, '-', mm, '-', dd]);
+    String historyTimeLineTxt =
+        formatDate(historyTime, [yyyy, '-', mm, '-', dd]);
     return Container(
       padding: EdgeInsets.only(left: 15.0),
       width: MediaQuery.of(context).size.width,
       height: 30.0,
       color: CommonUtil.hexToColor("#ebebeb"),
       alignment: Alignment.centerLeft,
-      child: Text(historyTimeLineTxt, style: TextStyle(color: Colors.white),),
+      child: Text(
+        historyTimeLineTxt,
+        style: TextStyle(color: Colors.white),
+      ),
     );
-
   }
 
   //历史记录item
   Widget _createTodoItem(TodoData todoData) {
     return Column(
       children: <Widget>[
+        SizedBox(height: 10.0,),
         Row(
           children: <Widget>[
             SizedBox(
@@ -154,7 +158,7 @@ class _HistoryTodoPageState extends State<HistoryTodoPage> {
                   fontSize: 20.0),
             ),
             SizedBox(
-              width: 10.0,
+              width: 5.0,
             ),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -164,12 +168,14 @@ class _HistoryTodoPageState extends State<HistoryTodoPage> {
                       ? '(${TodoLocalizations.of(context).everyTask})${todoData.todoName}'
                       : todoData.todoName,
                   style: TextStyle(
-                      color: todoData.todoState == 1 ? (todoData.todoType == 1 ? Colors.blue : Colors.grey) : Colors.red,
+                      color: todoData.todoState == 1
+                          ? (todoData.todoType == 1 ? Colors.blue : Colors.grey)
+                          : Colors.red,
                       fontSize: 18.0),
                   maxLines: 1,
                 ),
                 SizedBox(
-                  height: 10.0,
+                  height: 5.0,
                 ),
                 Text(
                   todoData.todoSub,
@@ -180,7 +186,11 @@ class _HistoryTodoPageState extends State<HistoryTodoPage> {
             )
           ],
         ),
-        Divider(color: Colors.green, height: 1.0,)
+        SizedBox(height: 10.0,),
+        Divider(
+          color: Colors.green,
+          height: 1.0,
+        )
       ],
     );
   }
