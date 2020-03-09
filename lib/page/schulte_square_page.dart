@@ -108,9 +108,6 @@ class AnimContainer extends StatefulWidget {
 
 class _AnimContainerState extends State<AnimContainer>
     with TickerProviderStateMixin {
-  List<Color> conColor = List<Color>();
-  List<int> data = List<int>();
-  List<int> curSel = List<int>();
 
   List<Animation<Color>> animation;
   List<AnimationController> controller;
@@ -123,7 +120,6 @@ class _AnimContainerState extends State<AnimContainer>
     super.initState();
     animation = List<Animation<Color>>();
     controller = List<AnimationController>();
-    curSel = List<int>();
   }
 
   @override
