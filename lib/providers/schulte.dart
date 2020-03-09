@@ -16,8 +16,8 @@ class SchulteProvider extends ChangeNotifier {
   List<int> data;
   List<int> curSel;
 
-  List<AnimationController> controllers = List<AnimationController>();
-  List<Animation<Color>> animations = List<Animation<Color>>();
+  List<AnimationController> controllers;
+  List<Animation<Color>> animations;
 
   SchulteProvider() {
     if(isStarted) {
