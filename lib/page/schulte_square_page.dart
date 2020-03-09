@@ -136,10 +136,7 @@ class _AnimContainerState extends State<AnimContainer>
       animation.add(ColorTween(
         begin: Colors.white,
         end: Colors.green,
-      ).animate(controller[i])
-        ..addListener(() {
-          setState(() {});
-        }));
+      ).animate(controller[i]));
     }
     provider.animations = animation;
     provider.controllers = controller;
