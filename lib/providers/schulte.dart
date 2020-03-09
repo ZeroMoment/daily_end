@@ -114,14 +114,12 @@ class SchulteProvider extends ChangeNotifier {
       animations[i] = ColorTween(
         begin: Colors.white,
         end: Colors.red,
-      ).animate(controllers[i])
-        ..addListener(() {});
+      ).animate(controllers[i]);
     } else {
       animations[i] = ColorTween(
         begin: Colors.white,
         end: Colors.green,
-      ).animate(controllers[i])
-        ..addListener(() {});
+      ).animate(controllers[i]);
       curSel.add(data[i]);
       curSel = curSel;
     }
