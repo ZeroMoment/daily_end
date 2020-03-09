@@ -5,6 +5,7 @@ import 'package:daily_end/model/todo_data.dart';
 import 'package:daily_end/page/ad_banner_page.dart';
 import 'package:daily_end/page/edit_todo_page.dart';
 import 'package:daily_end/page/history_todo_page.dart';
+import 'package:daily_end/page/schulte_square_page.dart';
 import 'package:daily_end/util/common_util.dart';
 import 'package:firebase_admob/firebase_admob.dart';
 import 'package:flutter/material.dart';
@@ -39,7 +40,8 @@ class MyApp extends StatelessWidget {
         var routes = <String, WidgetBuilder>{
           EditTodoPage.routeName: (ctx) => EditTodoPage(settings.arguments),
           AdBannerPage.routeName: (ctx) => AdBannerPage(),
-          HistoryTodoPage.routeName: (ctx) => HistoryTodoPage()
+          HistoryTodoPage.routeName: (ctx) => HistoryTodoPage(),
+          SchulteSquarePage.routeName: (ctx) => SchulteSquarePage()
         };
         WidgetBuilder builder = routes[settings.name];
         return MaterialPageRoute(builder: (ctx) => builder(ctx));
@@ -194,6 +196,7 @@ class _MyHomePageState extends State<MyHomePage> {
     await db.updateItem(todoData);
     setState(() {
       //设置已完成，就是从显示列表中删除
+      isHaveHistory = true;
       _todoList.removeAt(position);
     });
   }
@@ -233,6 +236,12 @@ class _MyHomePageState extends State<MyHomePage> {
               onTap: () {
                 Navigator.pop(context);
                 _showWarmTipDialog();
+              },
+            ),
+            ListTile(
+              title: Text(TodoLocalizations.of(context).drawerItemPuzzle),
+              onTap: () {
+                Navigator.popAndPushNamed(context, SchulteSquarePage.routeName);
               },
             ),
             ListTile(

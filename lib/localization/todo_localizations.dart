@@ -61,6 +61,14 @@ class TodoLocalizations {
     return isZh ? "支持开发者" : "Support developer";
   }
 
+  String get drawerItemPuzzle {
+    return isZh ? "益智" : "Puzzle";
+  }
+
+  String get puzzleTitle {
+    return isZh ? "舒尔特方格" : "Schulte Square";
+  }
+
   String get addToolTip {
     return isZh ? "添加待办" : "Todo Add";
   }
@@ -99,6 +107,30 @@ class TodoLocalizations {
 
   String get cancel {
     return isZh ? "取消" : "Cancel";
+  }
+
+  String get standardText {
+    return isZh ? "标准" : "Standard";
+  }
+
+  String get standDescText {
+    return isZh ? "16秒内完成16格，25格同样标准" : "16 grids completed in 16 seconds, 25 grids are the same standard";
+  }
+
+  String get congratFrontText {
+    return isZh ? "恭喜你，在 " : "Congratulations, it's done in ";
+  }
+
+  String get congratAfterText {
+    return isZh ? " 秒内完成~ " : " seconds~";
+  }
+
+  String get gridText {
+    return isZh ? "格" : "grid";
+  }
+
+  String get changeTopicText {
+    return isZh ? "换一题" : "Another topic";
   }
 
   String get tipItemAdBanner {
